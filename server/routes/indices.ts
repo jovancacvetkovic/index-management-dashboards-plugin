@@ -23,6 +23,16 @@ export default function (services: NodeServices, router: IRouter) {
 
   router.get(
     {
+      path: NODE_API._SEARCH,
+      validate: {
+        query: schema.any(),
+      },
+    },
+    indexService.search
+  );
+
+  router.get(
+    {
       path: NODE_API._INDICES,
       validate: {
         query: schema.object({

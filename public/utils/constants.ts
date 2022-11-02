@@ -31,6 +31,7 @@ export const ROUTES = Object.freeze({
   INDEX_POLICIES: "/index-policies",
   POLICY_DETAILS: "/policy-details",
   INDICES: "/indices",
+  SEARCH_INDICES: "/search-indices",
   ROLLUPS: "/rollups",
   CREATE_ROLLUP: "/create-rollup",
   EDIT_ROLLUP: "/edit-rollup",
@@ -54,6 +55,7 @@ export const ROUTES = Object.freeze({
 export const BREADCRUMBS = Object.freeze({
   INDEX_MANAGEMENT: { text: "Index Management", href: "#/" },
   INDICES: { text: "Indices", href: `#${ROUTES.INDICES}` },
+  SEARCH_INDICES: { text: "Search Indices", href: `#${ROUTES.SEARCH_INDICES}` },
   INDEX_POLICIES: { text: "Index policies", href: `#${ROUTES.INDEX_POLICIES}` },
   MANAGED_INDICES: { text: "Managed indices", href: `#${ROUTES.MANAGED_INDICES}` },
   EDIT_POLICY: { text: "Edit policy" },

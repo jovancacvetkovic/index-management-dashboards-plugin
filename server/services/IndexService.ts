@@ -32,6 +32,65 @@ export default class IndexService {
     this.osDriver = osDriver;
   }
 
+  search = async (
+    context: RequestHandlerContext,
+    request: OpenSearchDashboardsRequest,
+    response: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<ServerResponse<GetIndicesResponse>>> => {
+    debugger;
+    try {
+      // @ts-ignore
+      const { q } = request.query as {
+        q: string;
+      };
+      const params = {
+        format: "json",
+        q,
+      };
+
+      const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
+
+      const [searchResponse]: [CatIndex[]] = await Promise.all([
+        callWithRequest("search", params),
+        getIndexToDataStreamMapping({ callAsCurrentUser: callWithRequest }),
+      ]);
+
+      // NOTE: Cannot use response.ok due to typescript type checking
+      return response.custom({
+        statusCode: 200,
+        body: {
+          ok: true,
+          response: {
+            indices: searchResponse.hits.hits,
+            totalIndices: searchResponse.hits.total.value,
+          },
+        },
+      });
+    } catch (err) {
+      // Throws an error if there is no index matching pattern
+      if (err.statusCode === 404 && err.body.error.type === "index_not_found_exception") {
+        return response.custom({
+          statusCode: 200,
+          body: {
+            ok: true,
+            response: {
+              indices: [],
+              totalIndices: 0,
+            },
+          },
+        });
+      }
+      console.error("Index Management - IndexService - getIndices:", err);
+      return response.custom({
+        statusCode: 200,
+        body: {
+          ok: false,
+          error: err.message,
+        },
+      });
+    }
+  };
+
   getIndices = async (
     context: RequestHandlerContext,
     request: OpenSearchDashboardsRequest,
