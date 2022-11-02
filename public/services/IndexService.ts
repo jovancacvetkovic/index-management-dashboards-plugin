@@ -25,6 +25,13 @@ export default class IndexService {
     this.httpClient = httpClient;
   }
 
+  searchIndices = async (queryObject: HttpFetchQuery): Promise<ServerResponse<GetIndicesResponse>> => {
+    // let url = "http://localhost:9200/_search";
+    let url = `..${NODE_API._SEARCH}`;
+    const response = (await this.httpClient.get(url, { query: queryObject })) as ServerResponse<GetIndicesResponse>;
+    return response;
+  };
+
   getIndices = async (queryObject: HttpFetchQuery): Promise<ServerResponse<GetIndicesResponse>> => {
     let url = `..${NODE_API._INDICES}`;
     const response = (await this.httpClient.get(url, { query: queryObject })) as ServerResponse<GetIndicesResponse>;

@@ -33,12 +33,14 @@ import Repositories from "../Repositories";
 import SnapshotPolicies from "../SnapshotPolicies";
 import SnapshotPolicyDetails from "../SnapshotPolicyDetails";
 import Snapshots from "../Snapshots";
+import SearchContainer from "../SearchIndices";
 
 enum Navigation {
   IndexManagement = "Index Management",
   IndexPolicies = "Index Policies",
   ManagedIndices = "Managed Indices",
   Indices = "Indices",
+  SearchIndices = "Search Indices",
   Rollups = "Rollup Jobs",
   Transforms = "Transform Jobs",
   SnapshotManagement = "Snapshot Management",
@@ -51,6 +53,7 @@ enum Pathname {
   IndexPolicies = "/index-policies",
   ManagedIndices = "/managed-indices",
   Indices = "/indices",
+  SearchIndices = "/search-indices",
   Rollups = "/rollups",
   Transforms = "/transforms",
   Snapshots = "/snapshots",
@@ -118,6 +121,12 @@ export default class Main extends Component<MainProps, object> {
             id: 5,
             href: `#${Pathname.Transforms}`,
             isSelected: pathname === Pathname.Transforms,
+          },
+          {
+            name: Navigation.SearchIndices,
+            id: 6,
+            href: `#${Pathname.SearchIndices}`,
+            isSelected: pathname === Pathname.SearchIndices,
           },
         ],
       },
@@ -277,6 +286,14 @@ export default class Main extends Component<MainProps, object> {
                             render={(props: RouteComponentProps) => (
                               <div style={ROUTE_STYLE}>
                                 <Policies {...props} policyService={services.policyService} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path={ROUTES.SEARCH_INDICES}
+                            render={(props: RouteComponentProps) => (
+                              <div style={ROUTE_STYLE}>
+                                <SearchContainer {...props} indexService={services.indexService} />
                               </div>
                             )}
                           />
