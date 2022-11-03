@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import SearchContainer from "./containers/SearchContainer";
+import SearchIndices from "./containers/SearchIndices";
 
-export default SearchContainer;
+export default SearchIndices;
