@@ -8,16 +8,14 @@ import { BREADCRUMBS } from "../../../utils/constants";
 import {
   ArgsWithError,
   ArgsWithQuery,
-  Criteria,
   Direction,
   EuiBasicTable,
   EuiButtonEmpty,
   EuiCopy,
   EuiFlexItem,
+  EuiHighlight,
   EuiHorizontalRule,
   EuiSearchBar,
-  EuiTableSelectionType,
-  EuiTableSortingType,
   Pagination,
   Query,
 } from "@elastic/eui";
@@ -32,6 +30,7 @@ import { CoreServicesContext } from "../../../components/core_services";
 import { getErrorMessage } from "../../../utils/helpers";
 import { IndicesQueryParams } from "../../Indices/models/interfaces";
 import IndexEmptyPrompt from "../../Indices/components/IndexEmptyPrompt";
+import { SearchFilterConfig } from "@opensearch-project/oui/src/eui_components/search_bar/filters/filters";
 
 export interface SearchIndicesQueryString {
   query: string;
@@ -56,13 +55,13 @@ interface IndicesState {
   query: Query;
   sortField: keyof ManagedCatIndex;
   sortDirection: Direction;
-  selectedItems: ManagedCatIndex[];
   indices: ManagedCatIndex[];
+  initialIndices: ManagedCatIndex[];
   loadingIndices: boolean;
   showDataStreams: boolean;
 }
 
-export default class SearchContainer extends Component<IndicesProps, IndicesState> {
+export default class SearchIndices extends Component<IndicesProps, IndicesState> {
   static contextType = CoreServicesContext;
   constructor(props: IndicesProps) {
     super(props);
@@ -75,8 +74,8 @@ export default class SearchContainer extends Component<IndicesProps, IndicesStat
       query: Query.parse(search),
       sortField,
       sortDirection,
-      selectedItems: [],
       indices: [],
+      initialIndices: [],
       loadingIndices: true,
       showDataStreams,
     };
@@ -89,35 +88,41 @@ export default class SearchContainer extends Component<IndicesProps, IndicesStat
     await this.getIndices();
   }
 
-  static getQueryObjectFromState({ from, size, search, sortField, sortDirection, showDataStreams }: IndicesState): IndicesQueryParams {
-    return { from, size, search, sortField, sortDirection, showDataStreams };
-  }
-
   async componentDidUpdate(prevProps: IndicesProps, prevState: IndicesState) {
-    const prevQuery = SearchContainer.getQueryObjectFromState(prevState);
-    const currQuery = SearchContainer.getQueryObjectFromState(this.state);
+    const prevQuery = SearchIndices.getQueryObjectFromState(prevState);
+    const currQuery = SearchIndices.getQueryObjectFromState(this.state);
     if (!_.isEqual(prevQuery, currQuery)) {
       await this.getIndices();
     }
   }
 
+  static getQueryObjectFromState({ from, size, search, sortField, sortDirection, showDataStreams }: IndicesState): IndicesQueryParams {
+    return { from, size, search, sortField, sortDirection, showDataStreams };
+  }
+
   getIndices = async (): Promise<void> => {
-    const { search } = this.state;
+    const { search, from, size } = this.state;
     this.setState({ loadingIndices: true });
     try {
       const { indexService, history } = this.props;
       const queryObject = {
         q: !_.isEmpty(search) ? search : undefined,
+        from,
+        size,
       };
 
       const queryParamsString = JSON.stringify(queryObject);
       history.replace({ ...this.props.location, search: queryParamsString });
       const getIndicesResponse = await indexService.searchIndices(queryObject);
 
-      debugger;
       if (getIndicesResponse.ok) {
         const { indices, totalIndices } = getIndicesResponse.response;
         this.setState({ indices, totalIndices });
+        if (_.isEmpty(this.state.initialIndices)) {
+          this.setState({
+            initialIndices: indices,
+          });
+        }
       } else {
         this.context.notifications.toasts.addDanger(getIndicesResponse.error);
       }
@@ -125,7 +130,6 @@ export default class SearchContainer extends Component<IndicesProps, IndicesStat
       this.context.notifications.toasts.addDanger(getErrorMessage(err, "There was a problem loading the indices"));
     }
 
-    // Avoiding flicker by showing/hiding the "Data stream" column only after the results are loaded.
     this.setState({ loadingIndices: false });
   };
 
@@ -133,18 +137,21 @@ export default class SearchContainer extends Component<IndicesProps, IndicesStat
     if (error) {
       return;
     }
-    debugger;
-    this.setState({ from: 0, search: queryText, query });
-  };
 
-  onTableChange = ({ page: tablePage, sort }: Criteria<ManagedCatIndex>): void => {
-    const { index: page, size } = tablePage;
-    const { field: sortField, direction: sortDirection } = sort;
-    this.setState({ from: page * size, size, sortField, sortDirection });
+    this.setState({ from: 0, search: queryText, query });
   };
 
   resetFilters = (): void => {
     this.setState({ search: DEFAULT_QUERY_PARAMS.search, query: Query.parse(DEFAULT_QUERY_PARAMS.search) });
+  };
+
+  searchColumnRenderer = (value: string = "") => {
+    let { query } = this.state;
+    // @ts-ignore
+    let clauses = query.ast._clauses;
+    const hasMatch = clauses.filter((clause: { value: string }) => value.match(_.trim(clause.value, "*")));
+
+    return <EuiHighlight search={!_.isEmpty(hasMatch) ? value : ""}>{value}</EuiHighlight>;
   };
 
   getSearchResultColumns = () => [
@@ -175,19 +182,21 @@ export default class SearchContainer extends Component<IndicesProps, IndicesStat
       truncateText: false,
       textOnly: true,
       width: "250px",
+      render: this.searchColumnRenderer,
     },
     {
       field: "_source.lastname",
-      name: "Doc field: lastname",
+      name: "Doc field: Lastname",
       sortable: true,
       truncateText: false,
       textOnly: true,
       width: "250px",
+      render: this.searchColumnRenderer,
     },
   ];
 
   render() {
-    const { totalIndices, from, size, search, sortField, sortDirection, indices, loadingIndices } = this.state;
+    const { totalIndices, from, size, search, indices, loadingIndices, initialIndices } = this.state;
 
     const filterIsApplied = !!search;
     const page = Math.floor(from / size);
@@ -199,31 +208,61 @@ export default class SearchContainer extends Component<IndicesProps, IndicesStat
       totalItemCount: totalIndices,
     };
 
-    const sorting: EuiTableSortingType<ManagedCatIndex> = {
-      sort: {
-        direction: sortDirection,
-        field: sortField,
-      },
-    };
-
-    const selection: EuiTableSelectionType<ManagedCatIndex> = {
-      // onSelectionChange: this.onSelectionChange,
-    };
     const schema = {
       strict: true,
       fields: {
-        indices: {
+        "_source.name": {
+          type: "string",
+        },
+        "_source.lastname": {
           type: "string",
         },
       },
     };
+
+    const filterFn = (field: string, result: IndexType[], ind: IndexType): IndexType => {
+      if (ind._source[field]) {
+        return result.concat({
+          view: ind._source[field],
+          value: ind._source[field],
+        });
+      }
+
+      return result;
+    };
+
+    const getFilters = (field: string): IndexType[] => {
+      let names = initialIndices.reduce(filterFn.bind(undefined, field), []);
+      names = names.map((item) => [item["value"], item]);
+      return [...new Map(names).values()];
+    };
+
+    const filters: SearchFilterConfig[] = [
+      {
+        type: "field_value_selection",
+        field: "name",
+        name: "Search by Name",
+        filterWith: "includes",
+        multiSelect: "and",
+        options: getFilters("name"),
+      },
+      {
+        type: "field_value_selection",
+        field: "lastname",
+        name: "Search by lastname",
+        filterWith: "includes",
+        multiSelect: "and",
+        options: getFilters("lastname"),
+      },
+    ];
     return (
       <ContentPanel bodyStyles={{ padding: "initial" }} title="Full text search">
         <EuiFlexItem>
           <EuiSearchBar
             query={search}
-            box={{ placeholder: "Enter search term", schema, incremental: true }}
+            box={{ placeholder: "Enter search term", schema, incremental: false }}
             onChange={this.onSearchChange}
+            filters={filters}
           />
         </EuiFlexItem>
 
@@ -231,14 +270,11 @@ export default class SearchContainer extends Component<IndicesProps, IndicesStat
 
         <EuiBasicTable
           columns={this.getSearchResultColumns()}
-          isSelectable={true}
           itemId="index"
           items={indices}
           noItemsMessage={<IndexEmptyPrompt filterIsApplied={filterIsApplied} loading={loadingIndices} resetFilters={this.resetFilters} />}
-          onChange={this.onTableChange}
+          onChange={() => {}}
           pagination={pagination}
-          selection={selection}
-          sorting={sorting}
         />
       </ContentPanel>
     );

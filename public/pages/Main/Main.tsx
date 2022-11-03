@@ -33,7 +33,7 @@ import Repositories from "../Repositories";
 import SnapshotPolicies from "../SnapshotPolicies";
 import SnapshotPolicyDetails from "../SnapshotPolicyDetails";
 import Snapshots from "../Snapshots";
-import SearchContainer from "../SearchIndices";
+import SearchIndices from "../SearchIndices";
 
 enum Navigation {
   IndexManagement = "Index Management",
@@ -293,7 +293,7 @@ export default class Main extends Component<MainProps, object> {
                             path={ROUTES.SEARCH_INDICES}
                             render={(props: RouteComponentProps) => (
                               <div style={ROUTE_STYLE}>
-                                <SearchContainer {...props} indexService={services.indexService} />
+                                <SearchIndices {...props} indexService={services.indexService} />
                               </div>
                             )}
                           />
