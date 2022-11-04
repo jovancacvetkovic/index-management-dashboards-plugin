@@ -37,7 +37,6 @@ export default class IndexService {
     request: OpenSearchDashboardsRequest,
     response: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<ServerResponse<GetIndicesResponse>>> => {
-    debugger;
     try {
       // @ts-ignore
       const { q } = request.query as {
