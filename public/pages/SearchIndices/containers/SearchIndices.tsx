@@ -30,7 +30,6 @@ import { CoreServicesContext } from "../../../components/core_services";
 import { getErrorMessage } from "../../../utils/helpers";
 import { IndicesQueryParams } from "../../Indices/models/interfaces";
 import IndexEmptyPrompt from "../../Indices/components/IndexEmptyPrompt";
-import { SearchFilterConfig } from "@opensearch-project/oui/src/eui_components/search_bar/filters/filters";
 
 export interface SearchIndicesQueryString {
   query: string;
@@ -61,6 +60,14 @@ interface IndicesState {
   showDataStreams: boolean;
 }
 
+interface BoolQuery {
+  field: string;
+  match: string;
+  value: string;
+  operator: string;
+  type: string;
+}
+
 export default class SearchIndices extends Component<IndicesProps, IndicesState> {
   static contextType = CoreServicesContext;
   constructor(props: IndicesProps) {
@@ -69,7 +76,7 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
     this.state = {
       totalIndices: 0,
       from,
-      size,
+      size: 2,
       search,
       query: Query.parse(search),
       sortField,
@@ -102,28 +109,37 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
 
   getIndices = async (): Promise<void> => {
     const { search, from, size, query } = this.state;
-    // @ts-ignore
-    const { field = "name", match = "must", value = search } =
-      (query.getSimpleFieldClause() as {
-        field: string;
-        match: string;
-        value: string;
-      }) || {};
 
     this.setState({ loadingIndices: true });
+
+    const getBoolQueries = (queries: BoolQuery[] = [], search: string = "") => {
+      let boolQuery = {} as any;
+      queries.forEach((query: BoolQuery) => {
+        const {
+          field = "name",
+          match = "must",
+          value = search,
+          // type = "field",
+          // operator = "eq",
+        } = query;
+
+        if (!boolQuery[match]) boolQuery[match] = [];
+        boolQuery[match].push({
+          match: {
+            [field]: {
+              query: value,
+            },
+          },
+        });
+      });
+
+      return boolQuery;
+    };
     try {
       const { indexService, history } = this.props;
       let queryObject: any = {
         query: {
-          bool: {
-            [match]: {
-              match: {
-                [field]: {
-                  query: value,
-                },
-              },
-            },
-          },
+          bool: getBoolQueries(query.ast.clauses, search),
         },
         from,
         size,
@@ -222,6 +238,14 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
     },
   ];
 
+  onChangePage = ({ page }) =>
+    this.setState(
+      {
+        from: page.index + page.size,
+      },
+      () => this.getIndices()
+    );
+
   render() {
     const { totalIndices, from, size, search, indices, loadingIndices, initialIndices } = this.state;
 
@@ -247,7 +271,7 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
       },
     };
 
-    const filterFn = (field: string, result: IndexType[], ind: IndexType): IndexType => {
+    /*const filterFn = (field: string, result: IndexType[], ind: IndexType): IndexType => {
       if (ind._source[field]) {
         return result.concat({
           view: ind._source[field],
@@ -256,13 +280,13 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
       }
 
       return result;
-    };
+    };*/
 
-    const getFilters = (field: string): IndexType[] => {
+    /* const getFilters = (field: string): IndexType[] => {
       let names = initialIndices.reduce(filterFn.bind(undefined, field), []);
       names = names.map((item) => [item["value"], item]);
       return [...new Map(names).values()];
-    };
+    };*/
 
     /*
     const filters: SearchFilterConfig[] = [
@@ -304,7 +328,7 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
           itemId="index"
           items={indices}
           noItemsMessage={<IndexEmptyPrompt filterIsApplied={filterIsApplied} loading={loadingIndices} resetFilters={this.resetFilters} />}
-          onChange={() => {}}
+          onChange={this.onChangePage}
           pagination={pagination}
         />
       </ContentPanel>
