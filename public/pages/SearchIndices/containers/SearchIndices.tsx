@@ -101,15 +101,42 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
   }
 
   getIndices = async (): Promise<void> => {
-    const { search, from, size } = this.state;
+    const { search, from, size, query } = this.state;
+    // @ts-ignore
+    const { field = "name", match = "must", value = search } =
+      (query.getSimpleFieldClause() as {
+        field: string;
+        match: string;
+        value: string;
+      }) || {};
+
     this.setState({ loadingIndices: true });
     try {
       const { indexService, history } = this.props;
-      const queryObject = {
-        q: !_.isEmpty(search) ? search : undefined,
+      let queryObject: any = {
+        query: {
+          bool: {
+            [match]: {
+              match: {
+                [field]: {
+                  query: value,
+                },
+              },
+            },
+          },
+        },
         from,
         size,
       };
+
+      if (_.isEmpty(search)) {
+        queryObject = {
+          ...queryObject,
+          query: {
+            match_all: {},
+          },
+        };
+      }
 
       const queryParamsString = JSON.stringify(queryObject);
       history.replace({ ...this.props.location, search: queryParamsString });
@@ -211,10 +238,10 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
     const schema = {
       strict: true,
       fields: {
-        "_source.name": {
+        name: {
           type: "string",
         },
-        "_source.lastname": {
+        lastname: {
           type: "string",
         },
       },
@@ -237,6 +264,7 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
       return [...new Map(names).values()];
     };
 
+    /*
     const filters: SearchFilterConfig[] = [
       {
         type: "field_value_selection",
@@ -255,6 +283,7 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
         options: getFilters("lastname"),
       },
     ];
+*/
     return (
       <ContentPanel bodyStyles={{ padding: "initial" }} title="Full text search">
         <EuiFlexItem>
@@ -262,7 +291,9 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
             query={search}
             box={{ placeholder: "Enter search term", schema, incremental: false }}
             onChange={this.onSearchChange}
+            /*
             filters={filters}
+*/
           />
         </EuiFlexItem>
 

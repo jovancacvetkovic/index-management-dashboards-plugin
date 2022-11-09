@@ -39,14 +39,13 @@ export default class IndexService {
   ): Promise<IOpenSearchDashboardsResponse<ServerResponse<GetIndicesResponse>>> => {
     try {
       // @ts-ignore
-      const { q } = request.query as {
-        q: string;
-      };
+      const { query } = request.body;
       const params = {
         format: "json",
-        q,
+        body: {
+          query: query,
+        },
       };
-
       const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
 
       const [searchResponse]: [CatIndex[]] = await Promise.all([
