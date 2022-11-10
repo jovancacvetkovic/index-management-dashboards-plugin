@@ -68,7 +68,7 @@ interface BoolQuery {
   type: string;
 }
 
-export default class SearchIndices extends Component<IndicesProps, IndicesState> {
+export default class SearchIndicesOld extends Component<IndicesProps, IndicesState> {
   static contextType = CoreServicesContext;
   constructor(props: IndicesProps) {
     super(props);
@@ -76,7 +76,7 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
     this.state = {
       totalIndices: 0,
       from,
-      size: 2,
+      size,
       search,
       query: Query.parse(search),
       sortField,
@@ -96,8 +96,8 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
   }
 
   async componentDidUpdate(prevProps: IndicesProps, prevState: IndicesState) {
-    const prevQuery = SearchIndices.getQueryObjectFromState(prevState);
-    const currQuery = SearchIndices.getQueryObjectFromState(this.state);
+    const prevQuery = SearchIndicesOld.getQueryObjectFromState(prevState);
+    const currQuery = SearchIndicesOld.getQueryObjectFromState(this.state);
     if (!_.isEqual(prevQuery, currQuery)) {
       await this.getIndices();
     }
@@ -313,7 +313,7 @@ export default class SearchIndices extends Component<IndicesProps, IndicesState>
         <EuiFlexItem>
           <EuiSearchBar
             query={search}
-            box={{ placeholder: "Enter search term", schema, incremental: false }}
+            box={{ placeholder: "Enter search term", incremental: false }}
             onChange={this.onSearchChange}
             /*
             filters={filters}
