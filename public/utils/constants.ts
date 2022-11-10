@@ -50,10 +50,12 @@ export const ROUTES = Object.freeze({
   REPOSITORIES: "/repositories",
   CREATE_REPOSITORY: "/create-repository",
   EDIT_REPOSITORY: "/edit-repository",
+  OVERVIEW: "/overview",
 });
 
 export const BREADCRUMBS = Object.freeze({
   INDEX_MANAGEMENT: { text: "Index Management", href: "#/" },
+  OVERVIEW: { text: `"Overview", href: "#${ROUTES.OVERVIEW}"` },
   INDICES: { text: "Indices", href: `#${ROUTES.INDICES}` },
   SEARCH_INDICES: { text: "Search Indices", href: `#${ROUTES.SEARCH_INDICES}` },
   INDEX_POLICIES: { text: "Index policies", href: `#${ROUTES.INDEX_POLICIES}` },

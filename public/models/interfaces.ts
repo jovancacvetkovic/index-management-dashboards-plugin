@@ -13,6 +13,7 @@ import {
   TransformService,
   NotificationService,
   SnapshotManagementService,
+  OverviewService,
 } from "../services";
 
 export interface BrowserServices {
@@ -23,6 +24,7 @@ export interface BrowserServices {
   transformService: TransformService;
   notificationService: NotificationService;
   snapshotManagementService: SnapshotManagementService;
+  overviewService: OverviewService;
 }
 
 export interface SMPoliciesQueryParams {
@@ -53,8 +55,8 @@ export interface Toast {
 }
 
 export interface RestoreError {
-  reason?: string,
-  type?: string
+  reason?: string;
+  type?: string;
 }
 
 export interface LatestActivities {

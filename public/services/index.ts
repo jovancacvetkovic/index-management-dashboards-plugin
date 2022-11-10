@@ -5,6 +5,7 @@
 
 import { ServicesConsumer, ServicesContext } from "./Services";
 import IndexService from "./IndexService";
+import OverviewService from "./OverviewService";
 import ManagedIndexService from "./ManagedIndexService";
 import PolicyService from "./PolicyService";
 import RollupService from "./RollupService";
@@ -22,4 +23,5 @@ export {
   TransformService,
   NotificationService,
   SnapshotManagementService,
+  OverviewService,
 };
