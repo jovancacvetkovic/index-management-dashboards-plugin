@@ -1,108 +1,143 @@
 import React, { useEffect, useState } from "react";
-import IndexEmptyPrompt from "../../Indices/components/IndexEmptyPrompt";
-import { CatIndex } from "../../../../server/models/interfaces";
+import { ManagedCatIndex } from "../../../../server/models/interfaces";
 import {
   EuiBasicTable,
+  EuiButtonEmpty,
   EuiCodeBlock,
-  EuiDescriptionList,
+  EuiCopy,
+  EuiFlexGroup,
   EuiFlexItem,
+  EuiHealth,
   EuiHorizontalRule,
+  EuiLink,
   EuiPanel,
-  EuiSelectable,
-  EuiSpacer,
-  EuiSplitPanel,
-  EuiText,
+  EuiTableSelectionType,
   EuiTitle,
 } from "@elastic/eui";
-import { indicesColumns } from "../../Indices/utils/constants";
 
 export interface IndicesTableProps {
-  indices: CatIndex[];
-  filterIsApplied: boolean;
-  loadingIndices: boolean;
-  resetFilters?: Function;
+  indices: ManagedCatIndex[];
   onChange?: Function;
-  onClick?: Function;
+  onSelectionChange?: Function;
   pagination?: any;
   sorting?: any;
 }
 
 export const IndicesTable: React.FC<IndicesTableProps> = ({
   indices = [],
-  filterIsApplied = false,
-  loadingIndices = false,
-  resetFilters = undefined,
   onChange = undefined,
-  onClick = undefined,
+  onSelectionChange = undefined,
   pagination = undefined,
   sorting = undefined,
 }) => {
-  const [options, setOptions] = useState<
-    {
-      label: string;
-    }[]
-  >([]);
+  const [item, setItem] = useState<ManagedCatIndex | null>(null);
 
-  const [item, setItem] = useState(undefined);
+  useEffect(() => {
+    setItem(indices[0]);
+  }, [indices]);
 
-  const onSelectionChange = (selectedItems) => {
-    const options = selectedItems.map((ind) => ({ label: ind.index, data: ind }));
-    setOptions(options);
-  };
-  const [selection, setSelection] = useState({
+  const [selection] = useState<EuiTableSelectionType<ManagedCatIndex>>({
+    // @ts-ignore
     onSelectionChange: onSelectionChange,
   });
 
+  const HEALTH_TO_COLOR: {
+    [health: string]: string;
+    green: string;
+    yellow: string;
+    red: string;
+  } = {
+    green: "success",
+    yellow: "warning",
+    red: "danger",
+  };
+
+  const actions = [
+    {
+      render: (item: ManagedCatIndex) => {
+        return (
+          <EuiLink onClick={() => setItem(item)} color="success">
+            Show details
+          </EuiLink>
+        );
+      },
+    },
+  ];
+
+  const columns = [
+    {
+      field: "index",
+      name: "Index",
+      sortable: true,
+      truncateText: false,
+      textOnly: true,
+      width: "250px",
+      render: (index: string) => {
+        return (
+          <EuiCopy textToCopy={index}>
+            {(copy) => (
+              <div>
+                <EuiButtonEmpty size="xs" flush="right" iconType="copyClipboard" onClick={copy} color="text"></EuiButtonEmpty>
+                <span title={index}>{index}</span>
+              </div>
+            )}
+          </EuiCopy>
+        );
+      },
+    },
+    {
+      field: "health",
+      name: "Health",
+      sortable: true,
+      truncateText: true,
+      textOnly: true,
+      align: "right",
+      render: (health: string, item: ManagedCatIndex) => {
+        const color = health ? HEALTH_TO_COLOR[health] : "subdued";
+        const text = health || item.status;
+        return <EuiHealth color={color}>{text}</EuiHealth>;
+      },
+    },
+    {
+      name: "Actions",
+      actions,
+    },
+  ];
+
   // @ts-ignore
   return (
-    <>
-      <EuiBasicTable
-        columns={indicesColumns()}
-        isSelectable={true}
-        itemId="index"
-        items={indices}
-        noItemsMessage={<IndexEmptyPrompt filterIsApplied={filterIsApplied} loading={loadingIndices} resetFilters={resetFilters} />}
-        onChange={onChange}
-        pagination={pagination}
-        selection={selection}
-        sorting={sorting}
-      />
-      <EuiSpacer />
-      <EuiTitle size="s">
-        <h3>Indices description</h3>
-      </EuiTitle>
-      <EuiHorizontalRule margin="xs" />
-      <EuiSplitPanel.Outer direction="row">
-        <EuiSplitPanel.Inner>
-          <EuiSelectable
-            options={options}
-            singleSelection={true}
-            onChange={(newOptions) => {
-              setOptions(newOptions);
+    <EuiFlexGroup style={{ padding: "0px 5px" }} direction="row">
+      <EuiFlexItem>
+        <EuiPanel grow={true}>
+          <EuiBasicTable
+            // @ts-ignore
+            columns={columns}
+            isSelectable={true}
+            itemId="index"
+            items={indices}
+            noItemsMessage={"No indices found"}
+            // @ts-ignore
+            onChange={onChange}
+            pagination={pagination}
+            selection={selection}
+            sorting={sorting}
+          />
+        </EuiPanel>
+      </EuiFlexItem>
+      <EuiFlexItem>
+        {item ? (
+          <EuiPanel grow={true}>
+            <EuiTitle size="s">
+              <h3>{item.index}</h3>
+            </EuiTitle>
 
-              const changedItems = newOptions.filter((itm) => itm.checked === "on");
-              if (changedItems && changedItems[0]) {
-                setItem(changedItems[0]);
-              }
-            }}
-            listProps={{ bordered: true }}
-          >
-            {(list) => list}
-          </EuiSelectable>
-        </EuiSplitPanel.Inner>
-        <EuiSplitPanel.Inner color="subdued" grow={true}>
-          {item ? (
-            <EuiFlexItem>
-              <EuiTitle size="s">
-                <h3>{item.label} description</h3>
-              </EuiTitle>
-              <EuiCodeBlock language="json" fontSize="m" paddingSize="m" lineNumbers>
-                {JSON.stringify(item.data, null, 2)}
-              </EuiCodeBlock>
-            </EuiFlexItem>
-          ) : null}
-        </EuiSplitPanel.Inner>
-      </EuiSplitPanel.Outer>
-    </>
+            <EuiHorizontalRule margin="xs" />
+            <EuiCodeBlock language="json" fontSize="m" paddingSize="m">
+              {JSON.stringify(item, null, 2)}
+            </EuiCodeBlock>
+          </EuiPanel>
+        ) : null}
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 };

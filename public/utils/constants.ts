@@ -55,7 +55,7 @@ export const ROUTES = Object.freeze({
 
 export const BREADCRUMBS = Object.freeze({
   INDEX_MANAGEMENT: { text: "Index Management", href: "#/" },
-  OVERVIEW: { text: `"Overview", href: "#${ROUTES.OVERVIEW}"` },
+  OVERVIEW: { text: "Overview", href: `#${ROUTES.OVERVIEW}` },
   INDICES: { text: "Indices", href: `#${ROUTES.INDICES}` },
   SEARCH_INDICES: { text: "Search Indices", href: `#${ROUTES.SEARCH_INDICES}` },
   INDEX_POLICIES: { text: "Index policies", href: `#${ROUTES.INDEX_POLICIES}` },
@@ -118,3 +118,29 @@ export enum IntervalType {
   FIXED = "fixed",
   CALENDAR = "calendar",
 }
+
+export const browseIndicesCols = [
+  {
+    field: "index",
+    name: "Index",
+    width: "100%",
+    truncateText: true,
+    sortable: true,
+  },
+];
+
+export const restoreIndicesCols = [
+  {
+    field: "index",
+    name: "Index",
+    width: "75%",
+    truncateText: true,
+    sortable: true,
+  },
+  {
+    field: "restore_status",
+    name: "Restore status",
+    width: "25%",
+    sortable: true,
+  },
+];
