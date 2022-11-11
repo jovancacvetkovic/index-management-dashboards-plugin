@@ -39,7 +39,7 @@ export default class IndexService {
   ): Promise<IOpenSearchDashboardsResponse<ServerResponse<GetIndicesResponse>>> => {
     try {
       // @ts-ignore
-      const { query = "", from = 0, size = 50, sort } = request.body;
+      const { query = "", from = 0, size = 50, sort, index = undefined } = request.body;
 
       const params = {
         format: "json",
@@ -49,6 +49,7 @@ export default class IndexService {
         },
         size,
         from,
+        index,
       };
       const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
 

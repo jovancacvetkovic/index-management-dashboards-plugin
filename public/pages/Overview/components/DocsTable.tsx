@@ -85,7 +85,7 @@ export const DocsTable: React.FC<DocsTableProps> = ({ indices = [] }) => {
       },
 
       // @ts-ignore
-      // indices: [...new Set(indices.map(item => item?.index))],
+      index: [...new Set(indices.map((item) => item?.index))].join(","),
       from: pagination.pageIndex * pagination.pageSize,
       size: pagination.pageSize,
 
