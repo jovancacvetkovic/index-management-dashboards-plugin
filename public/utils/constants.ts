@@ -55,7 +55,7 @@ export const ROUTES = Object.freeze({
 
 export const BREADCRUMBS = Object.freeze({
   INDEX_MANAGEMENT: { text: "Index Management", href: "#/" },
-  OVERVIEW: { text: `"Overview", href: "#${ROUTES.OVERVIEW}"` },
+  OVERVIEW: { text: "Overview", href: `#${ROUTES.OVERVIEW}` },
   INDICES: { text: "Indices", href: `#${ROUTES.INDICES}` },
   SEARCH_INDICES: { text: "Search Indices", href: `#${ROUTES.SEARCH_INDICES}` },
   INDEX_POLICIES: { text: "Index policies", href: `#${ROUTES.INDEX_POLICIES}` },

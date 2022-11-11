@@ -39,12 +39,13 @@ export default class IndexService {
   ): Promise<IOpenSearchDashboardsResponse<ServerResponse<GetIndicesResponse>>> => {
     try {
       // @ts-ignore
-      const { query = "", from = 0, size = 50 } = request.body;
+      const { query = "", from = 0, size = 50, sort } = request.body;
 
       const params = {
         format: "json",
         body: {
           query: query,
+          sort: sort,
         },
         size,
         from,
@@ -59,8 +60,8 @@ export default class IndexService {
         body: {
           ok: true,
           response: {
-            indices: searchResponse.hits.hits,
-            totalIndices: searchResponse.hits.total.value,
+            indices: searchResponse.hits?.hits,
+            totalIndices: searchResponse.hits?.total.value,
           },
         },
       });

@@ -15,8 +15,14 @@ const OverviewService = (httpClient: HttpSetup) => {
     return (await httpClient.get(url, { query: queryObject })) as ServerResponse<GetIndicesResponse>;
   };
 
+  const searchIndices = async (bodyParams: any): Promise<ServerResponse<GetIndicesResponse>> => {
+    let url = `..${NODE_API._SEARCH}`;
+    return (await httpClient.post(url, { body: JSON.stringify(bodyParams) })) as ServerResponse<GetIndicesResponse>;
+  };
+
   return {
     getIndices,
+    searchIndices,
   };
 };
 export default OverviewService;

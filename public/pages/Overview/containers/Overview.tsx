@@ -4,33 +4,34 @@
  */
 
 import { OverviewService, ServicesContext } from "../../../services";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { BrowserServices } from "../../../models/interfaces";
+import { BrowserServices, OnSearchChangeArgs } from "../../../models/interfaces";
 import { BREADCRUMBS } from "../../../utils/constants";
 import { NotificationsStart } from "opensearch-dashboards/public";
 import { CoreServicesContext } from "../../../components/core_services";
 import { OverviewViewModel } from "../models/OverviewViewModel";
-import { CatIndex } from "../../../../server/models/interfaces";
+import { ManagedCatIndex } from "../../../../server/models/interfaces";
 import { IndicesTable } from "../components/IndicesTable";
 import { DEFAULT_PAGE_SIZE_OPTIONS } from "../../Indices/utils/constants";
-import { CriteriaWithPagination, ArgsWithError, ArgsWithQuery } from "@elastic/eui";
+import { CriteriaWithPagination, EuiHorizontalRule, EuiTableSelectionType } from "@elastic/eui";
 import { ContentPanel } from "../../../components/ContentPanel";
 import { IndicesSearch } from "../components/IndicesSearch";
 import _ from "lodash";
+import { DocsTable } from "../components/DocsTable";
 
 export interface OverviewProps extends RouteComponentProps {
   notifications?: NotificationsStart;
   overviewService?: typeof OverviewService;
 }
 
+// noinspection JSIgnoredPromiseFromCall
 const Overview: React.FC<OverviewProps> = (props) => {
   const services = useContext(ServicesContext) as BrowserServices;
   const context = useContext(CoreServicesContext);
+
   const OverviewViewModelActor = OverviewViewModel(services);
-  // @ts-ignore
-  const [indices, setIndices] = useState<CatIndex[]>([]);
-  const [index, setIndex] = useState<string>(undefined);
+  const [indices, setIndices] = useState<ManagedCatIndex[]>([]);
   const [search, setSearch] = useState<string>("");
 
   const [pagination, setPagination] = useState<any>({
@@ -47,8 +48,8 @@ const Overview: React.FC<OverviewProps> = (props) => {
     },
   });
 
-  const fetchIndices = useCallback(async () => {
-    const response = await OverviewViewModelActor.fetchIndices({
+  const fetchIndices = async () => {
+    const response = await OverviewViewModelActor.getIndices({
       from: pagination.pageIndex * pagination.pageSize,
       size: pagination.pageSize,
       search: search,
@@ -57,19 +58,22 @@ const Overview: React.FC<OverviewProps> = (props) => {
       sortDirection: sorting.sort.direction,
       showDataStreams: true,
     });
+
     setIndices(response.indices);
     setPagination({
       ...pagination,
       totalItemCount: response.indicesCount,
     });
-  }, [OverviewViewModelActor]);
+  };
 
   useEffect(() => {
     context?.chrome.setBreadcrumbs([BREADCRUMBS.OVERVIEW]);
+
+    // noinspection JSIgnoredPromiseFromCall
     fetchIndices();
   }, [sorting, pagination.pageIndex, search]);
 
-  const onChange = (nextValues: CriteriaWithPagination<any>) => {
+  const onTableChange = (nextValues: CriteriaWithPagination<any>) => {
     setPagination({
       ...pagination,
       pageIndex: nextValues.page.index,
@@ -80,7 +84,7 @@ const Overview: React.FC<OverviewProps> = (props) => {
     });
   };
 
-  const onSearchChange = _.debounce(({ query, queryText, error }: ArgsWithQuery | ArgsWithError): void => {
+  const onSearchChange = _.debounce(({ queryText, error }: OnSearchChangeArgs): void => {
     if (error) {
       return;
     }
@@ -88,19 +92,28 @@ const Overview: React.FC<OverviewProps> = (props) => {
     setSearch(queryText);
   }, 500);
 
+  const [selected, setSelected] = useState<EuiTableSelectionType<ManagedCatIndex>[]>([]);
+  const onSelectionChange = (selectedItems: EuiTableSelectionType<ManagedCatIndex>[]) => {
+    setSelected(selectedItems);
+  };
+
   return (
-    <ContentPanel bodyStyles={{ padding: "initial" }} title="Overview">
-      <IndicesSearch search={search} onSearchChange={onSearchChange} onRefresh={fetchIndices} />
-      <IndicesTable
-        pagination={pagination}
-        sorting={sorting}
-        indices={indices}
-        filterIsApplied={false}
-        loadingIndices={false}
-        resetFilters={() => {}}
-        onChange={onChange}
-      />
-    </ContentPanel>
+    <>
+      <ContentPanel bodyStyles={{ padding: "initial" }} title="Overview">
+        <IndicesSearch search={search} onSearchChange={onSearchChange} onRefresh={fetchIndices} />
+        <IndicesTable
+          pagination={pagination}
+          sorting={sorting}
+          indices={indices}
+          onChange={onTableChange}
+          onSelectionChange={onSelectionChange}
+        />
+      </ContentPanel>
+      <EuiHorizontalRule margin="xs" />
+      <ContentPanel bodyStyles={{ padding: "initial" }} title="Search">
+        <DocsTable indices={selected} />
+      </ContentPanel>
+    </>
   );
 };
 

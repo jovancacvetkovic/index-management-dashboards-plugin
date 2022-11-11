@@ -5,38 +5,77 @@
 
 import { BrowserServices } from "../../../models/interfaces";
 import { CatIndex } from "../../../../server/models/interfaces";
+import { HttpFetchQuery } from "opensearch-dashboards/public";
+import { useState } from "react";
+
+interface OverviewIndicesResponse {
+  indices: CatIndex[];
+  indicesCount: number;
+}
+
+interface OverviewDocsResponse {
+  docs: CatIndex[];
+  docsCount: number;
+}
 
 export const OverviewViewModel = (services: BrowserServices) => {
-  let indicesViewModel: {
-    indices: CatIndex[];
-  } = {
+  const [model, setModel] = useState<OverviewIndicesResponse>({
     indices: [],
-  };
+    indicesCount: 0,
+  });
+  const [docs, setDocs] = useState<OverviewDocsResponse>({
+    docs: [],
+    docsCount: 0,
+  });
 
-  const fetchIndices = async (queryObject) => {
-    indicesViewModel.indices = await getIndices(queryObject);
-    return indicesViewModel.indices;
-  };
-
-  const getIndices = async (queryObject) => {
+  const getIndices = async (queryObject: HttpFetchQuery) => {
     const indicesResponse = await services.overviewService.getIndices(queryObject);
 
+    let response = {
+      indices: [],
+      indicesCount: 0,
+    };
+
     if (indicesResponse?.ok) {
-      return {
+      response = {
         indices: indicesResponse.response.indices,
         indicesCount: indicesResponse.response.totalIndices,
       };
     }
-
-    return [];
+    setModel(response);
+    return response;
   };
 
-  const getAll = () => {
-    return indicesViewModel;
+  const searchIndices = async (queryObject: HttpFetchQuery) => {
+    const indicesResponse = await services.overviewService.searchIndices(queryObject);
+
+    let response = {
+      docs: [],
+      docsCount: 0,
+    };
+
+    if (indicesResponse?.ok) {
+      response = {
+        docs: indicesResponse.response.indices,
+        docsCount: indicesResponse.response.totalIndices,
+      };
+    }
+    setDocs(response);
+    return response;
+  };
+
+  const getAllIndices = () => {
+    return model;
+  };
+
+  const getAllDocs = () => {
+    return docs;
   };
 
   return {
-    fetchIndices,
-    getAll,
+    searchIndices,
+    getIndices,
+    getAllIndices,
+    getAllDocs,
   };
 };

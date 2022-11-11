@@ -4,11 +4,12 @@
  */
 
 import React from "react";
-import { ArgsWithError, ArgsWithQuery, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiSearchBar } from "@elastic/eui";
+import { EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiSearchBar } from "@elastic/eui";
+import { OnSearchChangeArgs } from "../../../models/interfaces";
 
 interface IndexControlsProps {
   search: string;
-  onSearchChange: (args: ArgsWithQuery | ArgsWithError) => void;
+  onSearchChange: (args: OnSearchChangeArgs) => void;
   onRefresh: () => Promise<void>;
 }
 
@@ -32,6 +33,7 @@ export const IndicesSearch: React.FC<IndexControlsProps> = ({ search = "", onSea
             schema,
             incremental: true,
           }}
+          // @ts-ignore
           onChange={onSearchChange}
         />
       </EuiFlexItem>
