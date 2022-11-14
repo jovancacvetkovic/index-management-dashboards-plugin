@@ -33,17 +33,17 @@ import Repositories from "../Repositories";
 import SnapshotPolicies from "../SnapshotPolicies";
 import SnapshotPolicyDetails from "../SnapshotPolicyDetails";
 import Snapshots from "../Snapshots";
-import SearchIndicesOld from "../SearchIndices";
-import Overview from "../Overview/containers/Overview";
+import Overview from "../Overview";
+import FormExamples from "../FormExamples";
 
 enum Navigation {
   IndexManagement = "Index Management",
   IndexPolicies = "Index Policies",
   ManagedIndices = "Managed Indices",
   Indices = "Indices",
-  SearchIndices = "Search Indices",
   Rollups = "Rollup Jobs",
   Transforms = "Transform Jobs",
+  FormExamples = "Form Examples",
   SnapshotManagement = "Snapshot Management",
   Snapshots = "Snapshots",
   SnapshotPolicies = "Snapshot Policies",
@@ -55,9 +55,9 @@ enum Pathname {
   IndexPolicies = "/index-policies",
   ManagedIndices = "/managed-indices",
   Indices = "/indices",
-  SearchIndices = "/search-indices",
   Rollups = "/rollups",
   Transforms = "/transforms",
+  FormExamples = "/form-examples",
   Snapshots = "/snapshots",
   SnapshotPolicies = "/snapshot-policies",
   Repositories = "/repositories",
@@ -132,10 +132,10 @@ export default class Main extends Component<MainProps, object> {
             isSelected: pathname === Pathname.Transforms,
           },
           {
-            name: Navigation.SearchIndices,
+            name: Navigation.FormExamples,
             id: 6,
-            href: `#${Pathname.SearchIndices}`,
-            isSelected: pathname === Pathname.SearchIndices,
+            href: `#${Pathname.FormExamples}`,
+            isSelected: pathname === Pathname.FormExamples,
           },
         ],
       },
@@ -307,14 +307,6 @@ export default class Main extends Component<MainProps, object> {
                             )}
                           />
                           <Route
-                            path={ROUTES.SEARCH_INDICES}
-                            render={(props: RouteComponentProps) => (
-                              <div style={ROUTE_STYLE}>
-                                <SearchIndicesOld {...props} indexService={services.indexService} />
-                              </div>
-                            )}
-                          />
-                          <Route
                             path={ROUTES.POLICY_DETAILS}
                             render={(props: RouteComponentProps) => (
                               <div style={ROUTE_STYLE}>
@@ -404,6 +396,15 @@ export default class Main extends Component<MainProps, object> {
                             render={(props: RouteComponentProps) => (
                               <div style={ROUTE_STYLE}>
                                 <TransformDetails {...props} transformService={services.transformService} />
+                              </div>
+                            )}
+                          />
+
+                          <Route
+                            path={ROUTES.FORM_EXAMPLES}
+                            render={(props: RouteComponentProps) => (
+                              <div style={ROUTE_STYLE}>
+                                <FormExamples {...props} />
                               </div>
                             )}
                           />
