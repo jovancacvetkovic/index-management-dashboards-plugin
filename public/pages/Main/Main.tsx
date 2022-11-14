@@ -33,7 +33,8 @@ import Repositories from "../Repositories";
 import SnapshotPolicies from "../SnapshotPolicies";
 import SnapshotPolicyDetails from "../SnapshotPolicyDetails";
 import Snapshots from "../Snapshots";
-import Overview from "../Overview/containers/Overview";
+import Overview from "../Overview";
+import FormExamples from "../FormExamples";
 
 enum Navigation {
   IndexManagement = "Index Management",
@@ -42,6 +43,7 @@ enum Navigation {
   Indices = "Indices",
   Rollups = "Rollup Jobs",
   Transforms = "Transform Jobs",
+  FormExamples = "Form Examples",
   SnapshotManagement = "Snapshot Management",
   Snapshots = "Snapshots",
   SnapshotPolicies = "Snapshot Policies",
@@ -55,6 +57,7 @@ enum Pathname {
   Indices = "/indices",
   Rollups = "/rollups",
   Transforms = "/transforms",
+  FormExamples = "/form-examples",
   Snapshots = "/snapshots",
   SnapshotPolicies = "/snapshot-policies",
   Repositories = "/repositories",
@@ -127,6 +130,12 @@ export default class Main extends Component<MainProps, object> {
             id: 5,
             href: `#${Pathname.Transforms}`,
             isSelected: pathname === Pathname.Transforms,
+          },
+          {
+            name: Navigation.FormExamples,
+            id: 6,
+            href: `#${Pathname.FormExamples}`,
+            isSelected: pathname === Pathname.FormExamples,
           },
         ],
       },
@@ -387,6 +396,15 @@ export default class Main extends Component<MainProps, object> {
                             render={(props: RouteComponentProps) => (
                               <div style={ROUTE_STYLE}>
                                 <TransformDetails {...props} transformService={services.transformService} />
+                              </div>
+                            )}
+                          />
+
+                          <Route
+                            path={ROUTES.FORM_EXAMPLES}
+                            render={(props: RouteComponentProps) => (
+                              <div style={ROUTE_STYLE}>
+                                <FormExamples {...props} />
                               </div>
                             )}
                           />

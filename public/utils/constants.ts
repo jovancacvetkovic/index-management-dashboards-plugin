@@ -31,12 +31,12 @@ export const ROUTES = Object.freeze({
   INDEX_POLICIES: "/index-policies",
   POLICY_DETAILS: "/policy-details",
   INDICES: "/indices",
-  SEARCH_INDICES: "/search-indices",
   ROLLUPS: "/rollups",
   CREATE_ROLLUP: "/create-rollup",
   EDIT_ROLLUP: "/edit-rollup",
   ROLLUP_DETAILS: "/rollup-details",
   TRANSFORMS: "/transforms",
+  FORM_EXAMPLES: "/form-examples",
   CREATE_TRANSFORM: "/create-transform",
   EDIT_TRANSFORM: "/edit-transform",
   TRANSFORM_DETAILS: "/transform-details",
@@ -57,7 +57,6 @@ export const BREADCRUMBS = Object.freeze({
   INDEX_MANAGEMENT: { text: "Index Management", href: "#/" },
   OVERVIEW: { text: "Overview", href: `#${ROUTES.OVERVIEW}` },
   INDICES: { text: "Indices", href: `#${ROUTES.INDICES}` },
-  SEARCH_INDICES: { text: "Search Indices", href: `#${ROUTES.SEARCH_INDICES}` },
   INDEX_POLICIES: { text: "Index policies", href: `#${ROUTES.INDEX_POLICIES}` },
   MANAGED_INDICES: { text: "Managed indices", href: `#${ROUTES.MANAGED_INDICES}` },
   EDIT_POLICY: { text: "Edit policy" },
@@ -88,6 +87,8 @@ export const BREADCRUMBS = Object.freeze({
   REPOSITORIES: { text: "Repositories", href: `#${ROUTES.REPOSITORIES}` },
   CREATE_REPOSITORY: { text: "Create repository", href: `#${ROUTES.CREATE_REPOSITORY}` },
   EDIT_REPOSITORY: { text: "Edit repository", href: `#${ROUTES.EDIT_REPOSITORY}` },
+
+  FORM_EXAMPLES: { text: "Form Examples", href: `#${ROUTES.FORM_EXAMPLES}` },
 });
 
 // TODO: EUI has a SortDirection already
