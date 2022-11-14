@@ -39,7 +39,7 @@ export default class IndexService {
   ): Promise<IOpenSearchDashboardsResponse<ServerResponse<GetIndicesResponse>>> => {
     try {
       // @ts-ignore
-      const { query = "", from = 0, size = 2 } = request.body;
+      const { query = "", from = 0, size = 50 } = request.body;
 
       const params = {
         format: "json",
@@ -51,10 +51,7 @@ export default class IndexService {
       };
       const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
 
-      const [searchResponse]: [CatIndex[]] = await Promise.all([
-        callWithRequest("search", params),
-        getIndexToDataStreamMapping({ callAsCurrentUser: callWithRequest }),
-      ]);
+      const [searchResponse]: [CatIndex[]] = await Promise.all([callWithRequest("search", params)]);
 
       // NOTE: Cannot use response.ok due to typescript type checking
       return response.custom({

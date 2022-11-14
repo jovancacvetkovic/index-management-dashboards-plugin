@@ -33,7 +33,8 @@ import Repositories from "../Repositories";
 import SnapshotPolicies from "../SnapshotPolicies";
 import SnapshotPolicyDetails from "../SnapshotPolicyDetails";
 import Snapshots from "../Snapshots";
-import SearchIndices from "../SearchIndices";
+import SearchIndicesOld from "../SearchIndices";
+import Overview from "../Overview/containers/Overview";
 
 enum Navigation {
   IndexManagement = "Index Management",
@@ -47,6 +48,7 @@ enum Navigation {
   Snapshots = "Snapshots",
   SnapshotPolicies = "Snapshot Policies",
   Repositories = "Repositories",
+  Overview = "Overview",
 }
 
 enum Pathname {
@@ -59,6 +61,7 @@ enum Pathname {
   Snapshots = "/snapshots",
   SnapshotPolicies = "/snapshot-policies",
   Repositories = "/repositories",
+  Overview = "/overview",
 }
 
 const HIDDEN_NAV_ROUTES = [
@@ -92,6 +95,12 @@ export default class Main extends Component<MainProps, object> {
         id: 0,
         href: `#${Pathname.IndexPolicies}`,
         items: [
+          {
+            name: Navigation.Overview,
+            id: 0,
+            href: `#${Pathname.Overview}`,
+            isSelected: pathname === Pathname.Overview,
+          },
           {
             name: Navigation.IndexPolicies,
             id: 1,
@@ -188,6 +197,14 @@ export default class Main extends Component<MainProps, object> {
                                   snapshotManagementService={services.snapshotManagementService}
                                   indexService={services.indexService}
                                 />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path={ROUTES.OVERVIEW}
+                            render={(props: RouteComponentProps) => (
+                              <div style={ROUTE_STYLE}>
+                                <Overview {...props} overviewService={services.overviewService} />
                               </div>
                             )}
                           />
@@ -293,7 +310,7 @@ export default class Main extends Component<MainProps, object> {
                             path={ROUTES.SEARCH_INDICES}
                             render={(props: RouteComponentProps) => (
                               <div style={ROUTE_STYLE}>
-                                <SearchIndices {...props} indexService={services.indexService} />
+                                <SearchIndicesOld {...props} indexService={services.indexService} />
                               </div>
                             )}
                           />

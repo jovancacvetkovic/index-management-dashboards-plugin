@@ -143,6 +143,6 @@ const INDICES_COLUMNS: EuiTableFieldDataColumnType<ManagedCatIndex>[] = [
   },
 ];
 
-export const indicesColumns = (isDataStreamColumnVisible: boolean): EuiTableFieldDataColumnType<ManagedCatIndex>[] => {
+export const indicesColumns = (isDataStreamColumnVisible: boolean = false): EuiTableFieldDataColumnType<ManagedCatIndex>[] => {
   return isDataStreamColumnVisible ? INDICES_COLUMNS : INDICES_COLUMNS.filter((col) => col["field"] !== "data_stream");
 };

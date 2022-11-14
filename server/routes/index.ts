@@ -10,5 +10,6 @@ import rollups from "./rollups";
 import transforms from "./transforms";
 import notifications from "./notifications";
 import snapshotManagement from "./snapshotManagement";
+import overview from "./overview";
 
-export { indices, policies, managedIndices, rollups, transforms, notifications, snapshotManagement };
+export { indices, policies, managedIndices, rollups, transforms, notifications, snapshotManagement, overview };

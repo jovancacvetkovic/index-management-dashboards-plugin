@@ -13,6 +13,7 @@ import {
   TransformService,
   NotificationService,
   SnapshotManagementService,
+  OverviewService,
 } from "../services";
 
 export interface BrowserServices {
@@ -23,6 +24,7 @@ export interface BrowserServices {
   transformService: TransformService;
   notificationService: NotificationService;
   snapshotManagementService: SnapshotManagementService;
+  overviewService: OverviewService;
 }
 
 export interface SMPoliciesQueryParams {
@@ -59,7 +61,6 @@ export interface Column {
   truncateText?: boolean;
   sortable: boolean;
 }
-
 
 export interface RestoreError {
   reason?: string;
