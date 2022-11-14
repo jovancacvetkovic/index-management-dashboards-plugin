@@ -170,13 +170,13 @@ export interface IndexUpdateResponse {
   failedIndices: FailedIndex[];
 }
 
-export interface ApplyPolicyResponse extends IndexUpdateResponse { }
+export interface ApplyPolicyResponse extends IndexUpdateResponse {}
 
-export interface RemovePolicyResponse extends IndexUpdateResponse { }
+export interface RemovePolicyResponse extends IndexUpdateResponse {}
 
-export interface ChangePolicyResponse extends IndexUpdateResponse { }
+export interface ChangePolicyResponse extends IndexUpdateResponse {}
 
-export interface RetryManagedIndexResponse extends IndexUpdateResponse { }
+export interface RetryManagedIndexResponse extends IndexUpdateResponse {}
 
 export interface RetryParams {
   index: string;
@@ -335,7 +335,7 @@ export interface CatIndex {
 
 export interface CatSnapshotIndex {
   index?: string;
-  "restore_status"?: string;
+  restore_status?: string;
 }
 
 export interface ManagedCatIndex extends CatIndex {
