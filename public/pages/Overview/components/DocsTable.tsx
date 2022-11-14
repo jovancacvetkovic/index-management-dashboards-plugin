@@ -34,9 +34,9 @@ export const DocsTable: React.FC<DocsTableProps> = ({ indices = [] }) => {
   const services = useContext(ServicesContext) as BrowserServices;
   const OverviewViewModelActor = OverviewViewModel(services);
 
-  const [docs, setDocs] = useState<ManagedCatIndex[]>([]);
+  const [docs, setDocs] = useState<string[]>([]);
 
-  const [query, setQuery] = useState();
+  const [query, setQuery] = useState<string>("");
   const [search, setSearch] = useState<string>("");
 
   const [pagination, setPagination] = useState<any>({
@@ -144,6 +144,7 @@ export const DocsTable: React.FC<DocsTableProps> = ({ indices = [] }) => {
         ...pagination,
         pageIndex: 0,
       });
+      // @ts-ignore
       setQuery(query);
       setSearch(queryText);
     }
@@ -231,6 +232,7 @@ export const DocsTable: React.FC<DocsTableProps> = ({ indices = [] }) => {
             incremental: true,
             schema,
           }}
+          // @ts-ignore
           onChange={onSearchChange}
         />
         <EuiBasicTable
